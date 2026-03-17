@@ -1,50 +1,64 @@
 from pydantic import BaseModel, Field
+from pydantic import ConfigDict          # ← add this
 from enum import Enum
 from typing import Optional, List, Dict, Any
-from datetime import datetime
 
 
 class MediaType(str, Enum):
     IMAGE = "image"
     VIDEO = "video"
     AUDIO = "audio"
+    TEXT  = "text"
 
 
 class Verdict(str, Enum):
-    AUTHENTIC = "authentic"
-    DEEPFAKE = "deepfake"
+    AUTHENTIC  = "authentic"
+    DEEPFAKE   = "deepfake"
     SUSPICIOUS = "suspicious"
 
 
 class RiskLevel(str, Enum):
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
+    LOW      = "low"
+    MEDIUM   = "medium"
+    HIGH     = "high"
     CRITICAL = "critical"
 
 
 class AnalysisResult(BaseModel):
-    id: str
-    filename: str
-    file_size: int
-    content_type: str
-    media_type: MediaType
-    verdict: Verdict
-    confidence: float
-    authenticity_score: float
-    risk_level: RiskLevel
-    analysis_details: Dict[str, Any]
-    indicators: List[str]
-    model_scores: Dict[str, float]
-    processing_time_seconds: float
-    created_at: str
+    model_config = ConfigDict(protected_namespaces=())   # ← fixes the warning
+
+    id:                       str
+    filename:                 str
+    file_size:                int
+    content_type:             str
+    media_type:               MediaType
+    source:                   Optional[str] = "upload"
+    verdict:                  Verdict
+    confidence:               float
+    authenticity_score:       float
+    risk_level:               RiskLevel
+    analysis_details:         Dict[str, Any]
+    indicators:               List[str]
+    model_scores:             Dict[str, float]
+    processing_time_seconds:  float
+    created_at:               str
 
 
 class StatsResponse(BaseModel):
-    total_analyses: int
+    model_config = ConfigDict(protected_namespaces=())   # ← fixes the warning
+
+    total_analyses:     int
     deepfakes_detected: int
-    authentic_media: int
-    suspicious_media: int
-    by_media_type: Dict[str, int]
+    authentic_media:    int
+    suspicious_media:   int
+    by_media_type:      Dict[str, int]
     average_confidence: float
-    detection_rate: float
+    detection_rate:     float
+
+
+class AnalyzeTextRequest(BaseModel):
+    text: str = Field(..., min_length=10)
+
+
+class AnalyzeUrlRequest(BaseModel):
+    url: str
