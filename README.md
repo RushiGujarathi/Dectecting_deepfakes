@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 =======
 # DeepShield — AI Deepfake Detection System
 
